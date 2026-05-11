@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gr4vy - Seed Studio</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#eeecea;--surface:#ffffff;--surface2:#f7f6f3;--border:#e3e2de;--border2:#d4d2cd;
+  --text:#18180f;--muted:#72726b;--muted2:#9b9a95;
+  --accent:#0a6648;--accent-bg:#e6f4ee;--accent-mid:#1a9e72;
+  --shadow:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+  --mono:'IBM Plex Mono','Fira Code',monospace;
+  --sans:system-ui,-apple-system,sans-serif;--rad:8px;
+}
+body.dark{
+  --bg:#111110;--surface:#1e1e1c;--surface2:#252523;--border:#2e2e2b;--border2:#3a3a37;
+  --text:#e8e7e2;--muted:#888884;--muted2:#55554f;
+  --accent:#1db87a;--accent-bg:#0d2e1e;--accent-mid:#1a9e72;
+  --shadow:0 1px 4px rgba(0,0,0,.4);
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:13px;line-height:1.5;height:100vh;overflow:hidden;display:flex;flex-direction:column;transition:background .2s,color .2s}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.5rem;height:50px;display:flex;align-items:center;gap:10px;flex-shrink:0;transition:background .2s,border-color .2s}
+.wordmark{font-size:14px;font-weight:600;letter-spacing:-0.01em}
+.wordmark em{color:var(--accent);font-style:normal}
+.pipe{color:var(--border2);font-size:16px;margin:0 2px}
+.tagline{font-size:12px;color:var(--muted)}
+.spacer{flex:1}
+.env-badge{font-size:11px;font-weight:600;font-family:var(--mono);padding:3px 10px;border-radius:20px;background:var(--accent-bg);color:var(--accent)}
+.env-badge.production{background:#fee2e2;color:#dc2626}
+.tab-nav{display:flex;align-items:center;gap:2px;margin-left:1rem}
+.tab-btn{padding:0 14px;height:50px;border:none;background:none;font-family:var(--sans);font-size:13px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:color .15s}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:500}
+.tab-panel{display:none;flex:1;overflow:hidden}
+.tab-panel.active{display:flex}
+.dark-toggle{background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);cursor:pointer;padding:4px 8px;font-size:14px;line-height:1;transition:all .15s}
+.dark-toggle:hover{background:var(--surface2);color:var(--text);border-color:var(--border2)}
+.main{display:grid;grid-template-columns:430px 1fr;flex:1;overflow:hidden}
+.config{background:var(--bg);border-right:1px solid var(--border);overflow-y:auto;padding:.875rem .875rem 2rem;transition:background .2s}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem 1.1rem;margin-bottom:.625rem;box-shadow:var(--shadow);transition:background .2s,border-color .2s}
+.section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.75rem;display:flex;align-items:center;gap:6px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.section-hint{font-size:11px;color:var(--muted);margin-bottom:.75rem;line-height:1.5}
+.field{margin-bottom:.6rem}
+.field>label{display:block;font-size:11px;color:var(--muted);margin-bottom:3px}
+.field input[type=text],.field input[type=number],.field select{width:100%;padding:5px 9px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--sans);background:var(--surface2);color:var(--text);outline:none;transition:background .2s,border-color .15s}
+.field input:focus,.field select:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-bg);background:var(--surface)}
+.field-row{display:flex;gap:8px}
+.field-row .field{flex:1}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;font-size:12px}
+input[type=checkbox]{accent-color:var(--accent);width:14px;height:14px;cursor:pointer}
+.optional-tag{font-size:10px;font-weight:600;color:var(--muted2);background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:1px 5px;margin-left:4px;vertical-align:middle;letter-spacing:.04em;text-transform:none}
+.slider-block{margin-bottom:.6rem}
+.slider-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.slider-name{font-size:12px;display:flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.slider-val{font-size:12px;font-weight:700;color:var(--accent);min-width:32px;text-align:right}
+input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;height:4px}
+.dist-bar{height:8px;border-radius:4px;overflow:hidden;display:flex;margin:.5rem 0 1rem;gap:2px}
+.dist-seg{transition:flex .15s}
+.add-row{width:100%;padding:5px;border:1px dashed var(--border2);border-radius:var(--rad);background:none;color:var(--muted);font-size:11px;cursor:pointer;font-family:var(--sans);transition:.15s;margin-top:4px}
+.add-row:hover{background:var(--accent-bg);color:var(--accent);border-color:var(--accent-mid)}
+.rm-btn{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:14px;line-height:1;padding:1px 4px;border-radius:3px;flex-shrink:0;transition:.1s}
+.rm-btn:hover{background:#fee2e2;color:#dc2626}
+body.dark .rm-btn:hover{background:#3a1515;color:#f87171}
+.mini-link{background:none;border:none;color:var(--accent);font-size:11px;cursor:pointer;padding:0;font-family:var(--sans)}
+.mini-link:hover{text-decoration:underline}
+.data-table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:4px;table-layout:fixed}
+.data-table th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:0 5px 6px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+.data-table td{padding:4px 4px;border-bottom:1px solid var(--border);vertical-align:middle}
+.data-table tbody tr:last-child td{border-bottom:none}
+.data-table tbody tr:hover td{background:var(--surface2)}
+.data-table input[type=text]{width:100%;padding:2px 5px;border:1px solid transparent;border-radius:3px;font-size:11px;font-family:var(--mono);background:transparent;color:var(--text)}
+.data-table input[type=text]:hover{border-color:var(--border)}
+.data-table input[type=text]:focus{border-color:var(--accent);background:var(--surface);outline:none}
+.data-table input[type=number]{width:44px;padding:2px 4px;border:1px solid var(--border);border-radius:3px;font-size:11px;font-family:var(--mono);background:var(--surface2);color:var(--text);outline:none}
+.data-table input[type=number]:focus{border-color:var(--accent)}
+.pct-cell{font-size:10px;font-family:var(--mono);color:var(--muted);text-align:right;min-width:28px}
+.mini-dist{height:5px;border-radius:3px;overflow:hidden;display:flex;gap:1px;width:100%;min-width:0}
+.proc-card{border:1px solid var(--border);border-radius:var(--rad);margin-bottom:.5rem;overflow:hidden}
+.proc-hd{display:flex;align-items:center;gap:6px;padding:7px 9px;background:var(--surface2);border-bottom:1px solid var(--border);cursor:pointer;user-select:none;transition:background .15s}
+.proc-hd:hover{background:var(--bg)}
+.proc-chevron{font-size:10px;color:var(--muted);transition:transform .15s;flex-shrink:0}
+.proc-chevron.open{transform:rotate(90deg)}
+.proc-psp-badge{font-size:10px;font-weight:700;padding:1px 7px;border-radius:3px;font-family:var(--mono);flex-shrink:0}
+.proc-name-input{flex:1;padding:2px 6px;border:1px solid transparent;border-radius:3px;font-size:12px;font-family:var(--mono);background:transparent;color:var(--text);outline:none;min-width:0}
+.proc-name-input:hover{border-color:var(--border);background:var(--surface)}
+.proc-name-input:focus{border-color:var(--accent);background:var(--surface);outline:none}
+.proc-wt-wrap{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.proc-wt-wrap input{width:40px;padding:2px 4px;border:1px solid var(--border);border-radius:3px;font-size:11px;font-family:var(--mono);background:var(--surface2);color:var(--text);outline:none}
+.proc-wt-wrap input:focus{border-color:var(--accent)}
+.proc-pct{font-size:11px;font-family:var(--mono);color:var(--muted);min-width:30px}
+.proc-body{padding:10px;display:none;background:var(--surface)}
+.proc-body.open{display:block}
+.proc-psp-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.proc-psp-row label{font-size:11px;color:var(--muted);flex-shrink:0}
+.proc-psp-row select{padding:3px 6px;border:1px solid var(--border);border-radius:3px;font-size:11px;font-family:var(--sans);background:var(--surface2);color:var(--text);outline:none}
+.proc-psp-row select:focus{border-color:var(--accent)}
+.cards-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:5px}
+.meta-field{border:1px solid var(--border);border-radius:var(--rad);margin-bottom:.5rem;overflow:hidden}
+.meta-field-hd{display:flex;align-items:center;gap:6px;padding:6px 9px;background:var(--surface2);border-bottom:1px solid var(--border)}
+.meta-key-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);flex-shrink:0}
+.meta-key-input{flex:1;padding:3px 6px;border:1px solid var(--border);border-radius:3px;font-size:11px;font-family:var(--mono);background:var(--surface);color:var(--text);outline:none}
+.meta-key-input:focus{border-color:var(--accent)}
+.meta-body{padding:7px 9px 9px;background:var(--surface)}
+.meta-val-row{display:flex;align-items:center;gap:5px;margin-bottom:3px}
+.meta-val-row input[type=text]{flex:1;padding:2px 5px;border:1px solid var(--border);border-radius:3px;font-size:11px;font-family:var(--mono);background:var(--surface2);color:var(--text);outline:none}
+.meta-val-row input[type=text]:focus{border-color:var(--accent);background:var(--surface)}
+.meta-wt{width:38px;padding:2px 4px;border:1px solid var(--border);border-radius:3px;font-size:11px;font-family:var(--mono);background:var(--surface2);color:var(--text);outline:none}
+.meta-wt:focus{border-color:var(--accent)}
+.meta-pct{font-size:10px;font-family:var(--mono);color:var(--muted);min-width:26px;text-align:right}
+.meta-dist{height:5px;border-radius:3px;overflow:hidden;display:flex;gap:1px;margin:4px 0 6px}
+.swatch{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block}
+.output{display:flex;flex-direction:column;overflow:hidden}
+.out-header{background:var(--surface);border-bottom:1px solid var(--border);padding:.75rem 1.25rem;display:flex;align-items:center;gap:1.5rem;flex-shrink:0}
+.stat{display:flex;flex-direction:column}
+.stat-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.stat-val{font-size:17px;font-weight:700;letter-spacing:-.02em;line-height:1.2}
+.copy-btn{background:var(--accent);color:#fff;border:none;padding:6px 14px;border-radius:var(--rad);font-size:12px;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;gap:6px;font-weight:500}
+.copy-btn:hover{opacity:.88}
+.copy-btn:active{transform:scale(.98)}
+.dl-btn{background:none;color:var(--accent);border:1px solid var(--border);padding:6px 12px;border-radius:var(--rad);font-size:12px;cursor:pointer;font-family:var(--sans);font-weight:500;transition:.1s}
+.dl-btn:hover{background:var(--accent-bg)}
+.code-wrap{flex:1;overflow:auto;padding:1.25rem;background:var(--bg)}
+pre#scriptOut{font-family:var(--mono);font-size:11.5px;line-height:1.75;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.25rem 1.5rem;min-height:100%;white-space:pre;transition:background .2s,border-color .2s,color .2s}
+/* modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:1000}
+.modal-overlay.hidden{display:none}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;max-width:400px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.modal-icon{font-size:26px;margin-bottom:.6rem}
+.modal h3{font-size:15px;font-weight:700;margin-bottom:.4rem}
+.modal-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:.875rem}
+.modal-list{list-style:none;margin-bottom:1rem;display:flex;flex-direction:column;gap:5px}
+.modal-list li{font-size:12px;color:var(--text);display:flex;align-items:flex-start;gap:7px;line-height:1.5}
+.modal-list li::before{content:'⚠';font-size:11px;color:#f59e0b;flex-shrink:0;margin-top:1px}
+.modal-check-row{display:flex;align-items:center;gap:8px;padding:.625rem .75rem;background:#fffbeb;border:1px solid #fde68a;border-radius:var(--rad);margin-bottom:1.1rem;cursor:pointer}
+body.dark .modal-check-row{background:#241f0a;border-color:#92400e}
+.modal-check-row label{font-size:12px;font-weight:500;cursor:pointer}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end}
+.modal-cancel{background:none;border:1px solid var(--border);border-radius:var(--rad);padding:6px 14px;font-size:12px;font-family:var(--sans);color:var(--muted);cursor:pointer}
+.modal-cancel:hover{background:var(--surface2);color:var(--text)}
+.modal-proceed{background:#dc2626;color:#fff;border:none;border-radius:var(--rad);padding:6px 16px;font-size:12px;font-family:var(--sans);font-weight:500;cursor:pointer;transition:opacity .15s}
+.modal-proceed:disabled{opacity:.35;cursor:not-allowed}
+.modal-proceed:not(:disabled):hover{opacity:.85}
+/* guide */
+.guide{flex:1;overflow-y:auto;padding:2.5rem 3rem;background:var(--bg)}
+.guide-inner{max-width:740px;margin:0 auto}
+.guide h1{font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:.25rem}
+.guide .lead{font-size:14px;color:var(--muted);margin-bottom:2.5rem;line-height:1.6}
+.guide h2{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:2rem 0 .75rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+.guide h3{font-size:14px;font-weight:600;margin:.75rem 0 .35rem}
+.guide p{font-size:13px;line-height:1.7;margin-bottom:.75rem}
+.guide ul{padding-left:1.25rem;margin-bottom:.75rem}
+.guide li{font-size:13px;line-height:1.7;margin-bottom:.2rem}
+.guide code{font-family:var(--mono);font-size:11.5px;background:var(--surface2);padding:1px 5px;border-radius:3px;color:var(--accent)}
+.guide pre{font-family:var(--mono);font-size:11.5px;line-height:1.7;background:var(--surface);border:1px solid var(--border);border-radius:var(--rad);padding:1rem 1.25rem;margin:.75rem 0 1rem;overflow-x:auto;white-space:pre}
+.callout{border-radius:var(--rad);padding:.75rem 1rem;margin:.75rem 0 1rem;font-size:13px;line-height:1.6}
+.callout.tip{background:var(--accent-bg);border-left:3px solid var(--accent)}
+.callout.warn{background:#fffbeb;border-left:3px solid #f59e0b}
+body.dark .callout.warn{background:#241f0a;border-left-color:#d97706}
+.callout strong{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px;opacity:.7}
+.guide table{width:100%;border-collapse:collapse;font-size:12px;margin:.75rem 0 1rem}
+.guide table th{font-size:11px;font-weight:600;text-align:left;padding:6px 10px;border-bottom:2px solid var(--border);color:var(--muted)}
+.guide table td{padding:6px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+.guide table tbody tr:last-child td{border-bottom:none}
+.guide table tbody tr:hover td{background:var(--surface2)}
+.step-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:.75rem 0 1.5rem}
+.step-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rad);padding:1rem;box-shadow:var(--shadow)}
+.step-num{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.4rem}
+.step-card h4{font-size:13px;font-weight:600;margin-bottom:.3rem}
+.step-card p{font-size:12px;color:var(--muted);line-height:1.5;margin:0}
+/* crafter */
+.crafter{flex:1;overflow:hidden;display:flex}
+.crafter-left{width:430px;flex-shrink:0;border-right:1px solid var(--border);overflow-y:auto;padding:.875rem .875rem 2rem;background:var(--bg)}
+.crafter-right{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.crafter-hd{background:var(--surface);border-bottom:1px solid var(--border);padding:.75rem 1.25rem;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.crafter-hd h3{font-size:13px;font-weight:600}
+.crafter-code{flex:1;overflow:auto;padding:1.25rem;background:var(--bg)}
+pre#crafterOut{font-family:var(--mono);font-size:11.5px;line-height:1.75;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.25rem 1.5rem;min-height:200px;white-space:pre;transition:background .2s,border-color .2s}
+.sim-note{font-size:11px;color:var(--muted);background:var(--accent-bg);border:1px solid var(--accent-mid);border-radius:var(--rad);padding:.5rem .75rem;margin-top:.5rem;line-height:1.6}
+.kv-row{display:flex;gap:6px;margin-bottom:4px;align-items:center}
+.kv-row input{flex:1;padding:4px 7px;border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:var(--mono);background:var(--surface2);color:var(--text);outline:none}
+.kv-row input:focus{border-color:var(--accent);background:var(--surface)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wordmark">gr4vy &nbsp;<em>seed studio</em></div>
+  <div class="pipe">|</div>
+  <div class="tagline">generate sandbox data scripts for any merchant instance</div>
+  <nav class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('studio',this)">Batch</button>
+    <button class="tab-btn" onclick="switchTab('crafter',this)">Single</button>
+    <button class="tab-btn" onclick="switchTab('guide',this)">Guide</button>
+  </nav>
+  <div class="spacer"></div>
+  <button class="dark-toggle" id="darkToggle" onclick="toggleDark()" title="Toggle dark mode">☽</button>
+  <div class="env-badge" id="envBadge">sandbox</div>
+</header>
+
+<!-- Production modal -->
+<div class="modal-overlay hidden" id="prodModal">
+  <div class="modal">
+    <div class="modal-icon">⚠️</div>
+    <h3>Switch to production?</h3>
+    <p class="modal-desc">This will generate a script that fires real transactions against a live Gr4vy instance.</p>
+    <ul class="modal-list">
+      <li>Real money will move if connected PSPs process these transactions</li>
+      <li>Test card numbers will likely be declined or flagged by live PSPs</li>
+      <li>Transactions will appear in live reporting and Insights</li>
+      <li>You are responsible for any charges or disputes that result</li>
+    </ul>
+    <div class="modal-check-row">
+      <input type="checkbox" id="prodConfirmCheck" onchange="document.getElementById('prodProceedBtn').disabled=!this.checked">
+      <label for="prodConfirmCheck">I understand this will affect a live production instance</label>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="cancelProdSwitch()">Cancel</button>
+      <button class="modal-proceed" id="prodProceedBtn" disabled onclick="confirmProdSwitch()">Switch to production</button>
+    </div>
+  </div>
+</div>
+
+<!-- BATCH TAB -->
+<div class="tab-panel active" id="tab-studio">
+<div class="main">
+  <div class="config">
+
+    <div class="section">
+      <div class="section-title">Instance</div>
+      <div class="field-row">
+        <div class="field"><label>Instance ID</label><input type="text" id="instanceId" value="" placeholder="e.g. blablacar" oninput="refresh()"></div>
+        <div class="field"><label>Environment</label>
+          <select id="environment" onchange="onEnvChange(this)">
+            <option value="sandbox">sandbox</option>
+            <option value="production">production</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label>Merchant Account ID <span class="optional-tag">optional</span></label><input type="text" id="merchantAccountId" value="" placeholder="e.g. blablacar-fr — leave blank for single-merchant" oninput="refresh()"></div>
+      <div class="field"><label>Private key env var</label><input type="text" id="pkVar" value="GR4VY_PRIVATE_KEY" oninput="refresh()"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Schedule</div>
+      <div class="field-row">
+        <div class="field"><label>Duration (days)</label><input type="number" id="days" value="7" min="1" max="90" oninput="refresh()"></div>
+        <div class="field"><label>Txns per day</label><input type="number" id="tpd" value="150" min="10" max="5000" oninput="refresh()"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Random seed</label><input type="number" id="seed" value="42" oninput="refresh()"></div>
+        <div class="field"><label>Decline rate (%)</label><input type="number" id="declineRate" value="8" min="0" max="60" oninput="refresh()"></div>
+      </div>
+      <div class="toggle-row"><span>Peak-hour time distribution</span><input type="checkbox" id="peakHours" checked onchange="refresh()"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Payment method mix</div>
+      <div class="slider-block"><div class="slider-hd"><div class="slider-name"><span class="dot" style="background:#0a6648"></span>Card (PAN)</div><span class="slider-val" id="cardPct">70%</span></div><input type="range" id="wCard" min="0" max="100" value="70" step="1" oninput="refreshPm()"></div>
+      <div class="slider-block"><div class="slider-hd"><div class="slider-name"><span class="dot" style="background:#0ea5e9"></span>Apple Pay</div><span class="slider-val" id="applePct">20%</span></div><input type="range" id="wApple" min="0" max="100" value="20" step="1" oninput="refreshPm()"></div>
+      <div class="slider-block"><div class="slider-hd"><div class="slider-name"><span class="dot" style="background:#f59e0b"></span>Google Pay</div><span class="slider-val" id="googlePct">10%</span></div><input type="range" id="wGoogle" min="0" max="100" value="10" step="1" oninput="refreshPm()"></div>
+      <div class="dist-bar" id="pmBar"><div class="dist-seg" style="background:#0a6648;flex:70"></div><div class="dist-seg" style="background:#0ea5e9;flex:20"></div><div class="dist-seg" style="background:#f59e0b;flex:10"></div></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Buyers &amp; vaulting</div>
+      <p class="section-hint">Creates a pool of buyers at script startup and vaults a card per buyer. Transactions are split between returning customers (vaulted payment method) and new customers (raw card, also vaulted for next time). Buyer creation is idempotent — re-running the script won't create duplicates.</p>
+      <div class="toggle-row"><span>Enable buyer pool &amp; vaulting</span><input type="checkbox" id="enableBuyers" checked onchange="refresh()"></div>
+      <div id="buyerOptions">
+        <div class="field-row">
+          <div class="field"><label>Buyer pool size</label><input type="number" id="buyerCount" value="20" min="2" max="200" oninput="refresh()"></div>
+          <div class="field"><label>Buyer ID prefix</label><input type="text" id="buyerPrefix" value="seed-buyer" oninput="refresh()"></div>
+        </div>
+        <div class="slider-block">
+          <div class="slider-hd"><div class="slider-name"><span class="dot" style="background:#7c3aed"></span>Returning customer %</div><span class="slider-val" id="returningPct">70%</span></div>
+          <input type="range" id="wReturning" min="0" max="100" value="70" step="5" oninput="refreshReturning()">
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">Returning = vaulted payment method &nbsp;·&nbsp; New = raw card + <code style="font-size:10px">store=True</code></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Processors</div>
+      <p class="section-hint">Each processor maps to a Gr4vy connection. Set the PSP type to auto-fill test cards, then adjust weights to control traffic share.</p>
+      <div id="procList"></div>
+      <div id="procDist" class="mini-dist" style="margin:6px 0 6px"></div>
+      <button class="add-row" onclick="addProc()">+ add processor</button>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Country &amp; currency distribution</div>
+      <p class="section-hint">Drives transaction currency, amount range, and a <code style="font-size:10px;background:#f4f3f0;padding:1px 4px;border-radius:3px;font-family:var(--mono)">country</code> metadata field.</p>
+      <table class="data-table"><thead><tr><th>country</th><th>currency</th><th>amount range (minor units)</th><th>wt</th><th>%</th><th></th></tr></thead><tbody id="countryBody"></tbody></table>
+      <div class="mini-dist" id="ctryDist" style="margin:6px 0 4px"></div>
+      <button class="add-row" onclick="addCountry()">+ add country</button>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Metadata fields</div>
+      <p class="section-hint">Any key with weighted values. Keys are case-sensitive.</p>
+      <div id="metaFields"></div>
+      <button class="add-row" onclick="addMeta()">+ add metadata field</button>
+    </div>
+
+  </div>
+  <div class="output">
+    <div class="out-header">
+      <div class="stat"><span class="stat-lbl">Total txns</span><span class="stat-val" id="statTotal">-</span></div>
+      <div class="stat"><span class="stat-lbl">Duration</span><span class="stat-val" id="statDays">-</span></div>
+      <div class="stat"><span class="stat-lbl">Avg rate</span><span class="stat-val" id="statRate">-</span></div>
+      <div class="stat"><span class="stat-lbl">Est. declines</span><span class="stat-val" id="statDeclines">-</span></div>
+      <div class="spacer"></div>
+      <button class="dl-btn" onclick="downloadScript()">&#8595; download</button>
+      <button class="copy-btn" onclick="copyScript()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        copy script
+      </button>
+    </div>
+    <div class="code-wrap"><pre id="scriptOut"></pre></div>
+  </div>
+</div>
+</div>
+
+<!-- SINGLE TAB -->
+<div class="tab-panel" id="tab-crafter">
+<div class="crafter">
+  <div class="crafter-left">
+    <div class="section">
+      <div class="section-title">Instance</div>
+      <div class="field-row">
+        <div class="field"><label>Instance ID</label><input type="text" id="c_iid" placeholder="e.g. plantly1" oninput="buildCrafter()"></div>
+        <div class="field"><label>Environment</label><select id="c_env" onchange="buildCrafter()"><option value="sandbox">sandbox</option><option value="production">production</option></select></div>
+      </div>
+      <div class="field"><label>Merchant Account ID <span class="optional-tag">optional</span></label><input type="text" id="c_maid" placeholder="leave blank for default" oninput="buildCrafter()"></div>
+      <div class="field"><label>Private key env var</label><input type="text" id="c_pkVar" value="GR4VY_PRIVATE_KEY" oninput="buildCrafter()"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Card details</div>
+      <div class="field"><label>Card number</label><input type="text" id="c_number" value="4111111111111111" oninput="buildCrafter()"></div>
+      <div class="field-row">
+        <div class="field"><label>Expiry (MM/YY)</label><input type="text" id="c_expiry" value="12/30" oninput="buildCrafter()"></div>
+        <div class="field"><label>CVV</label><input type="text" id="c_cvv" value="737" oninput="buildCrafter()"></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Transaction</div>
+      <div class="field-row">
+        <div class="field"><label>Amount (minor units)</label><input type="number" id="c_amount" value="1299" min="1" oninput="buildCrafter()"></div>
+        <div class="field"><label>Currency</label><input type="text" id="c_currency" value="EUR" maxlength="3" oninput="buildCrafter()"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Intent</label><select id="c_intent" onchange="buildCrafter()"><option value="capture">capture</option><option value="authorize">authorize</option></select></div>
+        <div class="field"><label>Country <span class="optional-tag">optional</span></label><input type="text" id="c_country" placeholder="FR" maxlength="2" oninput="buildCrafter()"></div>
+      </div>
+      <div class="field"><label>External identifier <span class="optional-tag">optional</span></label><input type="text" id="c_extId" placeholder="order-12345" oninput="buildCrafter()"></div>
+      <div class="field"><label>Payment service ID <span class="optional-tag">optional</span></label><input type="text" id="c_psId" placeholder="pin to a specific connection" oninput="buildCrafter()"></div>
+      <div class="sim-note">
+        <strong style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:3px;color:var(--accent)">Simulator amounts</strong>
+        Any amount → success &nbsp;·&nbsp; <code style="font-size:10px">200009</code> incorrect_cvv &nbsp;·&nbsp; <code style="font-size:10px">200011</code> insufficient_funds &nbsp;·&nbsp; <code style="font-size:10px">200012</code> issuer_decline &nbsp;·&nbsp; <code style="font-size:10px">200014</code> requires_buyer_auth &nbsp;·&nbsp; <code style="font-size:10px">200017</code> suspected_fraud &nbsp;<a href="https://docs.gr4vy.com/guides/features/simulators/overview" target="_blank" style="color:var(--accent)">full list ↗</a>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Buyer <span class="optional-tag">optional</span></div>
+      <div class="field"><label>Buyer ID</label><input type="text" id="c_buyerId" placeholder="gr4vy buyer UUID" oninput="buildCrafter()"></div>
+      <div class="field"><label>Buyer external identifier</label><input type="text" id="c_buyerExtId" placeholder="user-12345" oninput="buildCrafter()"></div>
+      <div class="field"><label>Email address</label><input type="text" id="c_email" placeholder="john@example.com" oninput="buildCrafter()"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">3D Secure <span class="optional-tag">optional</span></div>
+      <p class="section-hint">Pass pre-computed 3DS data to inject authentication results directly onto the transaction.</p>
+      <div class="field-row">
+        <div class="field"><label>Version</label><select id="c_3dsVer" onchange="buildCrafter()"><option value="">— none —</option><option value="2.1.0">2.x</option><option value="1.0.2">1.x</option></select></div>
+        <div class="field"><label>Status</label><select id="c_3dsStat" onchange="buildCrafter()"><option value="complete">complete</option><option value="no-challenge">no-challenge</option><option value="setup-error">setup-error</option></select></div>
+      </div>
+      <div class="field"><label>CAVV / AAV</label><input type="text" id="c_cavv" placeholder="authentication value from 3DS provider" oninput="buildCrafter()"></div>
+      <div class="field-row">
+        <div class="field"><label>ECI</label><input type="text" id="c_eci" placeholder="05" oninput="buildCrafter()"></div>
+        <div class="field"><label>XID / DS Transaction ID</label><input type="text" id="c_xid" placeholder="ds-txn-id" oninput="buildCrafter()"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Directory response</label><input type="text" id="c_dirResp" placeholder="Y / N / U" oninput="buildCrafter()"></div>
+        <div class="field"><label>Authentication response</label><input type="text" id="c_authResp" placeholder="Y / N / A / U" oninput="buildCrafter()"></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Metadata <span class="optional-tag">optional</span></div>
+      <div id="c_metaRows"></div>
+      <button class="add-row" onclick="addCrafterMeta()">+ add key / value</button>
+    </div>
+  </div>
+  <div class="crafter-right">
+    <div class="crafter-hd">
+      <h3>Python snippet</h3>
+      <div class="spacer"></div>
+      <button class="copy-btn" onclick="copyCrafter()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        copy
+      </button>
+    </div>
+    <div class="crafter-code"><pre id="crafterOut"># Fill in the fields on the left and the snippet will update here.</pre></div>
+  </div>
+</div>
+</div>
+
+<!-- GUIDE TAB -->
+<div class="tab-panel" id="tab-guide">
+<div class="guide"><div class="guide-inner">
+  <h1>Gr4vy Seed Studio</h1>
+  <p class="lead">A tool for generating realistic transaction data and crafting individual transactions in merchant sandbox instances.</p>
+  <h2>Tabs</h2>
+  <div class="step-grid">
+    <div class="step-card"><div class="step-num">Batch</div><h4>Bulk seeder</h4><p>Configure processors, buyers, countries, and metadata — download a Python script that fires hundreds of transactions over days.</p></div>
+    <div class="step-card"><div class="step-num">Single</div><h4>Single transaction</h4><p>Set every field on one transaction including 3DS data — get a ready-to-run Python snippet. Great for recreating customer issues.</p></div>
+    <div class="step-card"><div class="step-num">Guide</div><h4>Reference</h4><p>Setup steps, PSP test cards, simulator codes, and country reference.</p></div>
+  </div>
+  <h2>Prerequisites</h2>
+  <h3>Install the SDK</h3><pre>pip install gr4vy</pre>
+  <h3>Export your private key</h3><pre>export GR4VY_PRIVATE_KEY="$(cat path/to/private_key.pem)"</pre>
+  <h2>Buyers &amp; vaulting</h2>
+  <p>When enabled, the script creates a pool of buyers at startup and vaults one card per buyer via <code>client.payment_methods.create()</code>. Both calls use <code>external_identifier</code> so they're idempotent — re-running the script against the same instance will return existing buyers and payment methods rather than creating duplicates.</p>
+  <p>Each transaction is then split between <strong>returning customers</strong> (uses the buyer's vaulted <code>payment_method_id</code>) and <strong>new customers</strong> (uses raw card details with <code>store=True</code>, which vaults the card and associates it with the buyer for future runs). The split is controlled by the returning customer % slider.</p>
+  <div class="callout tip"><strong>Tip</strong>A 60-80% returning customer rate is realistic for most subscription or marketplace merchants. Lower it for e-commerce with lots of first-time buyers.</div>
+  <h2>Simulator connector</h2>
+  <p>The Gr4vy Simulator is a sandbox-only connector that returns mocked responses based on the transaction amount. Any card number works.</p>
+  <table>
+    <thead><tr><th>Amount</th><th>Outcome</th></tr></thead>
+    <tbody>
+      <tr><td>Any other value</td><td>capture_succeeded</td></tr>
+      <tr><td><code>200009</code></td><td>incorrect_cvv</td></tr>
+      <tr><td><code>200010</code></td><td>incorrect_expiry_date</td></tr>
+      <tr><td><code>200011</code></td><td>insufficient_funds</td></tr>
+      <tr><td><code>200012</code></td><td>issuer_decline</td></tr>
+      <tr><td><code>200014</code></td><td>requires_buyer_authentication</td></tr>
+      <tr><td><code>200015</code></td><td>refused_transaction</td></tr>
+      <tr><td><code>200017</code></td><td>suspected_fraud</td></tr>
+      <tr><td><code>300005</code></td><td>invalid_service_credentials</td></tr>
+      <tr><td><code>400001</code></td><td>internal_error</td></tr>
+    </tbody>
+  </table>
+  <h2>PSP test card reference</h2>
+  <table>
+    <thead><tr><th>PSP</th><th>Scheme</th><th>Number</th><th>Exp</th><th>CVV</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>Simulator</td><td>any</td><td>any valid number</td><td>any future</td><td>any</td><td>amount-driven</td></tr>
+      <tr><td>Adyen</td><td>Visa</td><td><code>4111111111111111</code></td><td>03/30</td><td>737</td><td>Success</td></tr>
+      <tr><td>Adyen</td><td>Mastercard</td><td><code>5500005555555559</code></td><td>03/30</td><td>737</td><td>Success</td></tr>
+      <tr><td>Adyen</td><td>Visa (decline)</td><td><code>4000000000000002</code></td><td>03/30</td><td>737</td><td>Decline</td></tr>
+      <tr><td>Checkout.com</td><td>Visa</td><td><code>4242424242424242</code></td><td>01/29</td><td>100</td><td>Success</td></tr>
+      <tr><td>Checkout.com</td><td>Mastercard</td><td><code>5436031030606378</code></td><td>12/30</td><td>257</td><td>Success</td></tr>
+      <tr><td>Stripe</td><td>Visa</td><td><code>4242424242424242</code></td><td>12/34</td><td>123</td><td>Success</td></tr>
+      <tr><td>Stripe</td><td>Mastercard</td><td><code>5555555555554444</code></td><td>12/34</td><td>123</td><td>Success</td></tr>
+      <tr><td>Braintree</td><td>Visa</td><td><code>4111111111111111</code></td><td>12/30</td><td>123</td><td>Success</td></tr>
+      <tr><td>Worldpay</td><td>Visa</td><td><code>4444333322221111</code></td><td>12/30</td><td>123</td><td>Success</td></tr>
+    </tbody>
+  </table>
+  <h2>Country reference</h2>
+  <table>
+    <thead><tr><th>Country</th><th>Code</th><th>Currency</th><th>Suggested range</th></tr></thead>
+    <tbody>
+      <tr><td>France</td><td><code>FR</code></td><td><code>EUR</code></td><td>300 – 14900</td></tr>
+      <tr><td>Germany</td><td><code>DE</code></td><td><code>EUR</code></td><td>300 – 14900</td></tr>
+      <tr><td>United Kingdom</td><td><code>GB</code></td><td><code>GBP</code></td><td>300 – 12900</td></tr>
+      <tr><td>United States</td><td><code>US</code></td><td><code>USD</code></td><td>300 – 19900</td></tr>
+      <tr><td>Brazil</td><td><code>BR</code></td><td><code>BRL</code></td><td>500 – 8900</td></tr>
+      <tr><td>Mexico</td><td><code>MX</code></td><td><code>MXN</code></td><td>2000 – 89900</td></tr>
+      <tr><td>Poland</td><td><code>PL</code></td><td><code>PLN</code></td><td>1000 – 59900</td></tr>
+      <tr><td>Australia</td><td><code>AU</code></td><td><code>AUD</code></td><td>300 – 19900</td></tr>
+    </tbody>
+  </table>
+  <div class="callout warn"><strong>Bearer token expiry</strong>Tokens expire after 1 hour. For multi-day Batch runs, move client initialisation inside the day loop so the token refreshes daily.</div>
+</div></div>
+</div>
+
+<script>
+const PSP_DATA={
+  simulator:{label:'Simulator',color:'#0069ed',bg:'#e6f0ff',
+    hint:'Amount-driven — any card works. Special amounts trigger specific error codes (see Guide tab).',
+    cards:[{scheme:'visa',number:'4111111111111111',month:'12',year:'2030',cvv:'123',weight:60},{scheme:'mastercard',number:'5500005555555559',month:'12',year:'2030',cvv:'123',weight:40}],
+    decline:{number:'4111111111111111',month:'12',year:'2030',cvv:'123'}},
+  adyen:{label:'Adyen',color:'#0abf53',bg:'#e6f9ee',
+    cards:[{scheme:'visa',number:'4111111111111111',month:'03',year:'2030',cvv:'737',weight:45},{scheme:'mastercard',number:'5500005555555559',month:'03',year:'2030',cvv:'737',weight:35},{scheme:'amex',number:'370000000000002',month:'03',year:'2030',cvv:'7373',weight:10},{scheme:'visa',number:'4988438843884305',month:'03',year:'2030',cvv:'737',weight:10}],
+    decline:{number:'4000000000000002',month:'03',year:'2030',cvv:'737'}},
+  checkout:{label:'Checkout.com',color:'#2355cc',bg:'#eef2ff',
+    cards:[{scheme:'visa',number:'4242424242424242',month:'01',year:'2029',cvv:'100',weight:50},{scheme:'visa',number:'4543474002249996',month:'01',year:'2029',cvv:'956',weight:15},{scheme:'mastercard',number:'5436031030606378',month:'12',year:'2030',cvv:'257',weight:30},{scheme:'amex',number:'345678901234564',month:'08',year:'2029',cvv:'2841',weight:5}],
+    decline:{number:'4000000000000002',month:'01',year:'2029',cvv:'100'}},
+  stripe:{label:'Stripe',color:'#635bff',bg:'#f0efff',
+    cards:[{scheme:'visa',number:'4242424242424242',month:'12',year:'2034',cvv:'123',weight:50},{scheme:'mastercard',number:'5555555555554444',month:'12',year:'2034',cvv:'123',weight:35},{scheme:'amex',number:'378282246310005',month:'12',year:'2034',cvv:'1234',weight:10},{scheme:'visa',number:'4000056655665556',month:'12',year:'2034',cvv:'123',weight:5}],
+    decline:{number:'4000000000009995',month:'12',year:'2034',cvv:'123'}},
+  braintree:{label:'Braintree',color:'#009cde',bg:'#e6f5fc',
+    cards:[{scheme:'visa',number:'4111111111111111',month:'12',year:'2030',cvv:'123',weight:50},{scheme:'mastercard',number:'5555555555554444',month:'12',year:'2030',cvv:'123',weight:35},{scheme:'amex',number:'378282246310005',month:'12',year:'2030',cvv:'1234',weight:15}],
+    decline:{number:'4000111111111115',month:'12',year:'2030',cvv:'123'}},
+  worldpay:{label:'Worldpay',color:'#cc0000',bg:'#fff0f0',
+    cards:[{scheme:'visa',number:'4444333322221111',month:'12',year:'2030',cvv:'123',weight:50},{scheme:'mastercard',number:'5105105105105100',month:'12',year:'2030',cvv:'123',weight:35},{scheme:'amex',number:'340000000000009',month:'12',year:'2030',cvv:'1234',weight:15}],
+    decline:{number:'4000000000000002',month:'12',year:'2030',cvv:'123'}},
+  custom:{label:'Custom',color:'#72726b',bg:'#f4f3f0',
+    cards:[{scheme:'visa',number:'4111111111111111',month:'12',year:'2030',cvv:'123',weight:100}],
+    decline:{number:'4000000000000002',month:'12',year:'2030',cvv:'123'}},
+};
+const COLORS=['#7c3aed','#0ea5e9','#f59e0b','#10b981','#ef4444','#8b5cf6','#06b6d4','#f97316','#84cc16','#ec4899','#14b8a6','#a855f7'];
+const CURRENCY_DEFAULTS={FR:{currency:'EUR',lo:300,hi:14900},DE:{currency:'EUR',lo:300,hi:14900},GB:{currency:'GBP',lo:300,hi:12900},US:{currency:'USD',lo:300,hi:19900},BR:{currency:'BRL',lo:500,hi:8900},MX:{currency:'MXN',lo:2000,hi:89900},PL:{currency:'PLN',lo:1000,hi:59900},CZ:{currency:'CZK',lo:1000,hi:359900},AU:{currency:'AUD',lo:300,hi:19900},CA:{currency:'CAD',lo:300,hi:19900},SG:{currency:'SGD',lo:300,hi:19900},IN:{currency:'INR',lo:5000,hi:999900}};
+function cloneCards(psp){return PSP_DATA[psp].cards.map(c=>({...c,id:nextCardId++}));}
+let nextProcId=3,nextCardId=100,nextCtryId=6,nextMetaId=1,nextValId=200;
+let processors=[{id:1,psp:'adyen',name:'Adyen_Main',weight:60,open:false,cards:cloneCards('adyen'),decline:{...PSP_DATA.adyen.decline}},{id:2,psp:'checkout',name:'Checkout_Main',weight:40,open:false,cards:cloneCards('checkout'),decline:{...PSP_DATA.checkout.decline}}];
+let countries=[{id:1,code:'FR',currency:'EUR',lo:300,hi:14900,weight:40},{id:2,code:'BR',currency:'BRL',lo:500,hi:8900,weight:20},{id:3,code:'DE',currency:'EUR',lo:300,hi:14900,weight:20},{id:4,code:'GB',currency:'GBP',lo:300,hi:12900,weight:20}];
+let customMeta=[];
+function fmtExpiry(e){const p=e.split('/');return p.length===2?`${p[0]}/${p[1].slice(-2)}`:e;}
+
+// buyers toggle
+function refreshReturning(){
+  const v=document.getElementById('wReturning').value;
+  document.getElementById('returningPct').textContent=v+'%';
+  buildScript();
+}
+document.getElementById('enableBuyers').addEventListener('change',function(){
+  document.getElementById('buyerOptions').style.display=this.checked?'':'none';
+  refresh();
+});
+
+// ── processors ──────────────────────────────────────────────────────────────
+function renderProcessors(){
+  const total=processors.reduce((s,p)=>s+(parseInt(p.weight)||0),0)||1;
+  document.getElementById('procList').innerHTML=processors.map(proc=>{
+    const psp=PSP_DATA[proc.psp]||PSP_DATA.custom;
+    const pct=Math.round((parseInt(proc.weight)||0)/total*100);
+    const cardTotal=proc.cards.reduce((s,c)=>s+(parseInt(c.weight)||0),0)||1;
+    const cardRows=proc.cards.map((c,ci)=>{const col=COLORS[ci%COLORS.length],cpct=Math.round((parseInt(c.weight)||0)/cardTotal*100);return `<tr><td><input type="text" value="${c.scheme}" style="width:72px" oninput="setCard(${proc.id},${c.id},'scheme',this.value)"></td><td><input type="text" value="${c.number}" style="width:130px" oninput="setCard(${proc.id},${c.id},'number',this.value)"></td><td><input type="text" value="${c.month}/${c.year}" style="width:52px" oninput="setCardExp(${proc.id},${c.id},this.value)"></td><td><input type="text" value="${c.cvv}" style="width:38px" oninput="setCard(${proc.id},${c.id},'cvv',this.value)"></td><td><input type="number" value="${c.weight}" min="0" max="999" style="width:40px" oninput="setCard(${proc.id},${c.id},'weight',this.value)"></td><td class="pct-cell" style="color:${col}">${cpct}%</td><td><button class="rm-btn" onclick="removeCard(${proc.id},${c.id})">x</button></td></tr>`;}).join('');
+    const cardDistSegs=proc.cards.map((c,ci)=>`<div style="background:${COLORS[ci%COLORS.length]};flex:${parseInt(c.weight)||0}"></div>`).join('');
+    const pspOptions=Object.entries(PSP_DATA).map(([k,v])=>`<option value="${k}" ${proc.psp===k?'selected':''}>${v.label}</option>`).join('');
+    const simNote=psp.hint?`<div style="font-size:11px;color:var(--muted);margin-bottom:8px;line-height:1.5;padding:6px 8px;background:var(--accent-bg);border-radius:4px">${psp.hint}</div>`:'';
+    return `<div class="proc-card"><div class="proc-hd" onclick="toggleProc(${proc.id})"><span class="proc-chevron ${proc.open?'open':''}">&#9654;</span><span class="proc-psp-badge" style="background:${psp.bg};color:${psp.color}">${psp.label}</span><input class="proc-name-input" type="text" value="${proc.name}" onclick="event.stopPropagation()" oninput="setProc(${proc.id},'name',this.value)"><div class="proc-wt-wrap"><input type="number" value="${proc.weight}" min="0" max="999" onclick="event.stopPropagation()" oninput="setProc(${proc.id},'weight',this.value)"><span class="proc-pct">${pct}%</span></div><button class="rm-btn" onclick="event.stopPropagation();removeProc(${proc.id})">x</button></div><div class="proc-body ${proc.open?'open':''}" id="proc-body-${proc.id}"><div class="proc-psp-row"><label>PSP type</label><select onchange="changePsp(${proc.id},this.value)">${pspOptions}</select><span style="font-size:11px;color:var(--muted);margin-left:4px">Decline card: <code style="font-size:10px">${proc.decline.number}</code></span></div>${simNote}<div class="cards-label">Test cards</div><table class="data-table"><thead><tr><th>scheme</th><th>card number</th><th>exp</th><th>cvv</th><th>wt</th><th>%</th><th></th></tr></thead><tbody>${cardRows}</tbody></table><div class="mini-dist" style="margin:4px 0 6px">${cardDistSegs}</div><button class="mini-link" onclick="addCard(${proc.id})">+ add card</button></div></div>`;
+  }).join('');
+  document.getElementById('procDist').innerHTML=processors.map(p=>{const psp=PSP_DATA[p.psp]||PSP_DATA.custom;return `<div style="background:${psp.color};flex:${parseInt(p.weight)||0}" title="${p.name}"></div>`;}).join('');
+}
+function toggleProc(id){const p=processors.find(x=>x.id===id);if(p){p.open=!p.open;renderProcessors();}}
+function setProc(id,f,v){const p=processors.find(x=>x.id===id);if(!p)return;p[f]=f==='weight'?(parseInt(v)||0):v;renderProcessors();buildScript();}
+function changePsp(id,psp){const p=processors.find(x=>x.id===id);if(!p)return;p.psp=psp;p.cards=cloneCards(psp);p.decline={...PSP_DATA[psp].decline};renderProcessors();buildScript();}
+function removeProc(id){processors=processors.filter(p=>p.id!==id);renderProcessors();buildScript();}
+function addProc(){processors.push({id:nextProcId++,psp:'adyen',name:'New_Connection',weight:10,open:true,cards:cloneCards('adyen'),decline:{...PSP_DATA.adyen.decline}});renderProcessors();buildScript();}
+function setCard(pid,cid,f,v){const p=processors.find(x=>x.id===pid);if(!p)return;const c=p.cards.find(x=>x.id===cid);if(!c)return;c[f]=f==='weight'?(parseInt(v)||0):v;renderProcessors();buildScript();}
+function setCardExp(pid,cid,v){const parts=v.split('/');if(parts.length===2){setCard(pid,cid,'month',parts[0].trim());setCard(pid,cid,'year',parts[1].trim());}}
+function removeCard(pid,cid){const p=processors.find(x=>x.id===pid);if(!p)return;p.cards=p.cards.filter(c=>c.id!==cid);renderProcessors();buildScript();}
+function addCard(pid){const p=processors.find(x=>x.id===pid);if(!p)return;p.cards.push({id:nextCardId++,scheme:'visa',number:'4111111111111111',month:'12',year:'2030',cvv:'123',weight:10});renderProcessors();buildScript();}
+
+function renderCountries(){
+  const total=countries.reduce((s,c)=>s+(parseInt(c.weight)||0),0)||1;
+  document.getElementById('countryBody').innerHTML=countries.map((c,i)=>{const col=COLORS[i%COLORS.length],pct=Math.round((parseInt(c.weight)||0)/total*100);return `<tr><td><input type="text" value="${c.code}" maxlength="4" style="width:46px;text-transform:uppercase" oninput="setCtry(${c.id},'code',this.value.toUpperCase());autoFillCtry(${c.id},this.value.toUpperCase())"></td><td><input type="text" value="${c.currency}" maxlength="4" style="width:40px;text-transform:uppercase" oninput="setCtry(${c.id},'currency',this.value.toUpperCase())"></td><td style="white-space:nowrap"><input type="number" value="${c.lo}" style="width:54px" oninput="setCtry(${c.id},'lo',this.value)"><span style="font-size:10px;color:var(--muted);margin:0 2px">-</span><input type="number" value="${c.hi}" style="width:60px" oninput="setCtry(${c.id},'hi',this.value)"></td><td><input type="number" value="${c.weight}" min="0" max="999" oninput="setCtry(${c.id},'weight',this.value)"></td><td class="pct-cell" style="color:${col}">${pct}%</td><td><button class="rm-btn" onclick="removeCtry(${c.id})">x</button></td></tr>`;}).join('');
+  document.getElementById('ctryDist').innerHTML=countries.map((c,i)=>`<div style="background:${COLORS[i%COLORS.length]};flex:${parseInt(c.weight)||0}" title="${c.code}"></div>`).join('');
+}
+function setCtry(id,f,v){const c=countries.find(x=>x.id===id);if(!c)return;c[f]=['lo','hi','weight'].includes(f)?(parseInt(v)||0):v;renderCountries();buildScript();}
+function autoFillCtry(id,code){const c=countries.find(x=>x.id===id);if(!c)return;const d=CURRENCY_DEFAULTS[code];if(d){c.currency=d.currency;c.lo=d.lo;c.hi=d.hi;renderCountries();buildScript();}}
+function removeCtry(id){countries=countries.filter(c=>c.id!==id);renderCountries();buildScript();}
+function addCountry(){countries.push({id:nextCtryId++,code:'XX',currency:'USD',lo:300,hi:19900,weight:10});renderCountries();buildScript();}
+
+function renderMeta(){
+  document.getElementById('metaFields').innerHTML=customMeta.map(field=>{
+    const total=field.values.reduce((s,v)=>s+(parseInt(v.weight)||0),0)||1;
+    const segs=field.values.map((v,i)=>`<div style="background:${COLORS[i%COLORS.length]};flex:${parseInt(v.weight)||0}"></div>`).join('');
+    const rows=field.values.map((v,i)=>{const col=COLORS[i%COLORS.length],pct=Math.round((parseInt(v.weight)||0)/total*100);return `<div class="meta-val-row"><span class="swatch" style="background:${col}"></span><input type="text" value="${v.value}" placeholder="value" oninput="setMetaVal(${field.id},${v.id},'value',this.value)"><input class="meta-wt" type="number" value="${v.weight}" min="0" max="999" oninput="setMetaVal(${field.id},${v.id},'weight',this.value)"><span class="meta-pct">${pct}%</span><button class="rm-btn" onclick="removeMetaVal(${field.id},${v.id})">x</button></div>`;}).join('');
+    return `<div class="meta-field"><div class="meta-field-hd"><span class="meta-key-label">key</span><input class="meta-key-input" type="text" value="${field.key}" placeholder="metadata_key" oninput="setMetaKey(${field.id},this.value)"><button class="rm-btn" onclick="removeMeta(${field.id})">x</button></div><div class="meta-body">${rows}<div class="meta-dist">${segs}</div><button class="mini-link" onclick="addMetaVal(${field.id})">+ add value</button></div></div>`;
+  }).join('');
+}
+function setMetaKey(fid,v){const f=customMeta.find(x=>x.id===fid);if(f){f.key=v;buildScript();}}
+function setMetaVal(fid,vid,field,v){const f=customMeta.find(x=>x.id===fid);if(!f)return;const val=f.values.find(x=>x.id===vid);if(!val)return;val[field]=field==='weight'?(parseInt(v)||0):v;renderMeta();buildScript();}
+function removeMetaVal(fid,vid){const f=customMeta.find(x=>x.id===fid);if(f){f.values=f.values.filter(v=>v.id!==vid);renderMeta();buildScript();}}
+function addMetaVal(fid){const f=customMeta.find(x=>x.id===fid);if(f){f.values.push({id:nextValId++,value:'value_'+f.values.length,weight:10});renderMeta();buildScript();}}
+function removeMeta(fid){customMeta=customMeta.filter(f=>f.id!==fid);renderMeta();buildScript();}
+function addMeta(){customMeta.push({id:nextMetaId++,key:'field_name',values:[{id:nextValId++,value:'value_a',weight:50},{id:nextValId++,value:'value_b',weight:50}]});renderMeta();buildScript();}
+
+function refreshPm(){
+  const c=parseInt(document.getElementById('wCard').value),a=parseInt(document.getElementById('wApple').value),g=parseInt(document.getElementById('wGoogle').value),t=c+a+g||1;
+  document.getElementById('cardPct').textContent=Math.round(c/t*100)+'%';
+  document.getElementById('applePct').textContent=Math.round(a/t*100)+'%';
+  document.getElementById('googlePct').textContent=Math.round(g/t*100)+'%';
+  document.getElementById('pmBar').innerHTML=`<div class="dist-seg" style="background:#0a6648;flex:${c}"></div><div class="dist-seg" style="background:#0ea5e9;flex:${a}"></div><div class="dist-seg" style="background:#f59e0b;flex:${g}"></div>`;
+  buildScript();
+}
+
+function updateStats(){
+  const d=parseInt(document.getElementById('days').value)||0,t=parseInt(document.getElementById('tpd').value)||0,dr=parseInt(document.getElementById('declineRate').value)||0,tot=d*t;
+  document.getElementById('statTotal').textContent=tot.toLocaleString();
+  document.getElementById('statDays').textContent=d+(d===1?' day':' days');
+  document.getElementById('statRate').textContent=(t/24).toFixed(1)+'/hr';
+  document.getElementById('statDeclines').textContent='~'+Math.round(tot*dr/100).toLocaleString();
+}
+
+function buildScript(){
+  const iid=document.getElementById('instanceId').value||'YOUR_INSTANCE_ID';
+  const maid=document.getElementById('merchantAccountId').value.trim();
+  const env=document.getElementById('environment').value;
+  const pkv=document.getElementById('pkVar').value||'GR4VY_PRIVATE_KEY';
+  const days=parseInt(document.getElementById('days').value)||7;
+  const tpd=parseInt(document.getElementById('tpd').value)||150;
+  const seed=parseInt(document.getElementById('seed').value)||42;
+  const dr=parseInt(document.getElementById('declineRate').value)||8;
+  const peak=document.getElementById('peakHours').checked;
+  const enableBuyers=document.getElementById('enableBuyers').checked;
+  const buyerCount=parseInt(document.getElementById('buyerCount').value)||20;
+  const buyerPrefix=document.getElementById('buyerPrefix').value||'seed-buyer';
+  const wReturning=parseInt(document.getElementById('wReturning').value)||70;
+  const wc=parseInt(document.getElementById('wCard').value),wa=parseInt(document.getElementById('wApple').value),wg=parseInt(document.getElementById('wGoogle').value),pt=wc+wa+wg||1;
+  const pCard=Math.round(wc/pt*100),pApple=Math.round(wa/pt*100),pGoogle=100-pCard-pApple;
+  const maidLine=maid?`MERCHANT_ACCOUNT_ID = "${maid}"`:`MERCHANT_ACCOUNT_ID = "default"  # single-merchant instance`;
+  const maidClientArg=maid?`\n    merchant_account_id=MERCHANT_ACCOUNT_ID,`:`\n    # merchant_account_id omitted — single-merchant instance uses default`;
+  const procLines=processors.map(p=>{const cardLines=p.cards.map(c=>`            {"scheme": "${c.scheme}", "number": "${c.number}", "expiry": "${fmtExpiry(c.month+'/'+c.year)}", "cvv": "${c.cvv}", "weight": ${c.weight||0}},`).join('\n');return `    {\n        "name": "${p.name}",\n        "psp": "${p.psp}",\n        "weight": ${p.weight||0},\n        "cards": [\n${cardLines}\n        ],\n        "decline_card": {"number": "${p.decline.number}", "expiry": "${fmtExpiry(p.decline.month+'/'+p.decline.year)}", "cvv": "${p.decline.cvv}"},\n    },`;}).join('\n');
+  const ctryLines=countries.map(c=>`    {"country": "${c.code}", "currency": "${c.currency}", "lo": ${c.lo}, "hi": ${c.hi}, "weight": ${c.weight||0}},`).join('\n');
+  const activeMeta=customMeta.filter(f=>f.key.trim()&&f.values.length>0);
+  let metaBlock='';if(activeMeta.length>0){metaBlock='\n# -- metadata fields ---------------------------------------------------------\n\nMETADATA_FIELDS = {\n';activeMeta.forEach(f=>{metaBlock+=`    "${f.key}": [\n`;f.values.forEach(v=>{metaBlock+=`        {"value": "${v.value}", "weight": ${v.weight||0}},\n`;});metaBlock+=`    ],\n`;});metaBlock+='}\n';}
+  const hasMeta=activeMeta.length>0;
+  const pickMetaFn=hasMeta?`\ndef pick_metadata() -> dict:\n    out = {}\n    for key, opts in METADATA_FIELDS.items():\n        out[key] = random.choices([o["value"] for o in opts], weights=[o["weight"] for o in opts])[0]\n    return out\n`:'';
+  const metaSpread=hasMeta?'\n            **pick_metadata(),':'';
+  const hw=peak?`[1,1,1,1,1,1,2,4,8,10,10,10,9,10,10,10,10,8,6,4,3,2,1,1]`:`[1] * 24`;
+
+  // buyers section of the generated script
+  const buyersConfig = enableBuyers ? `
+# -- buyers -------------------------------------------------------------------
+# Pool of buyers created at startup. Idempotent — re-running won't duplicate.
+
+BUYER_COUNT        = ${buyerCount}
+BUYER_PREFIX       = "${buyerPrefix}"
+RETURNING_RATE     = ${wReturning} / 100  # % of txns using a vaulted payment method
+` : '';
+
+  const buyersSetup = enableBuyers ? `
+# -- buyer pool setup ---------------------------------------------------------
+# Creates buyers and vaults one card per buyer. Both calls use external_identifier
+# so they are idempotent — safe to re-run against the same instance.
+
+def get_or_create_buyer(ext_id: str) -> str:
+    """Create buyer or return existing buyer_id on 409."""
+    try:
+        buyer = client.buyers.create(
+            external_identifier=ext_id,
+            display_name=ext_id.replace("-", " ").title(),
+        )
+        return buyer.id
+    except Exception:
+        # On any error (including 409 conflict), try to fetch the existing buyer
+        result = client.buyers.list(external_identifier=ext_id)
+        items = getattr(getattr(result, "result", result), "items", []) or []
+        if items:
+            return items[0].id
+        raise
+
+
+def get_or_vault_card(ext_id: str) -> str:
+    """Return existing vaulted payment method ID, or vault a new card."""
+    existing = client.buyers.payment_methods.list(buyer_external_identifier=ext_id)
+    items = getattr(getattr(existing, "result", existing), "items", []) or []
+    if items:
+        return items[0].id
+    # No existing card — vault one now
+    proc = random.choice(PROCESSORS)
+    card = random.choice(proc["cards"])
+    pm = client.payment_methods.create(
+        request_body=CardPaymentMethodCreate(
+            number=card["number"],
+            expiration_date=fmt_expiry(card["expiry"]),
+            security_code=card["cvv"],
+            buyer_external_identifier=ext_id,
+            external_identifier=f"{ext_id}-card",
+        ),
+    )
+    return pm.id
+
+
+def setup_buyers() -> list:
+    log.info(f"setting up {BUYER_COUNT} buyers and vaulting cards...")
+    pool = []
+    for i in range(1, BUYER_COUNT + 1):
+        ext_id = f"{BUYER_PREFIX}-{i:03d}"
+        try:
+            buyer_id = get_or_create_buyer(ext_id)
+            pm_id    = get_or_vault_card(ext_id)
+            pool.append({"buyer_ext_id": ext_id, "payment_method_id": pm_id})
+            log.info(f"  {ext_id} ready — pm {pm_id}")
+        except Exception as exc:
+            log.warning(f"  buyer setup failed for {ext_id}: {exc}")
+    log.info(f"buyer pool ready: {len(pool)} buyers")
+    return pool
+` : '';
+
+  const buyerFireArg = enableBuyers ? `, buyer_info: dict` : '';
+  const buyerFireBody = enableBuyers ? `
+    use_vault = buyer_info and random.random() < RETURNING_RATE and buyer_info.get("payment_method_id")
+    is_decline = not use_vault and random.random() < DECLINE_RATE
+
+    if use_vault:
+        # Returning customer — use vaulted payment method (already linked to buyer)
+        from gr4vy.models.tokenpaymentmethodcreate import TokenPaymentMethodCreate
+        pm         = TokenPaymentMethodCreate(method="id", id=buyer_info["payment_method_id"])
+        buyer_kwarg = {}
+        store_kwarg = {}
+    else:
+        # New customer — raw card, store=True vaults it and links to buyer
+        c = pick_card(proc, method == "card" and is_decline)
+        pm          = CardWithURLPaymentMethodCreate(
+            number=c["number"],
+            expiration_date=fmt_expiry(c["expiry"]),
+            security_code=c["cvv"],
+        )
+        buyer_kwarg = {"buyer_external_identifier": buyer_info["buyer_ext_id"]} if buyer_info else {}
+        store_kwarg = {"store": True} if buyer_info else {}
+` : `
+    is_decline = random.random() < DECLINE_RATE
+    c = pick_card(proc, method == "card" and is_decline)
+    pm = CardWithURLPaymentMethodCreate(
+        number=c["number"],
+        expiration_date=fmt_expiry(c["expiry"]),
+        security_code=c["cvv"],
+    )
+    buyer_kwarg = {}
+    store_kwarg = {}
+`;
+
+  const buyerCreateKwarg = enableBuyers ? `
+            **buyer_kwarg,
+            **store_kwarg,` : '';
+
+  const buyerRunLine = enableBuyers ? `
+            buyer_info = random.choice(buyer_pool) if buyer_pool else None
+            if fire(proc, country, method, buyer_info):` :
+`            if fire(proc, country, method):`;
+
+  const buyerPoolInit = enableBuyers ? `
+    buyer_pool = setup_buyers()
+` : `
+    buyer_pool = []
+`;
+
+  const imports = enableBuyers
+    ? `from gr4vy import Gr4vy, auth
+    from gr4vy.models.cardwithurlpaymentmethodcreate import CardWithURLPaymentMethodCreate`
+    : `from gr4vy import Gr4vy, auth
+    from gr4vy.models.cardwithurlpaymentmethodcreate import CardWithURLPaymentMethodCreate`;
+
+  const script=`#!/usr/bin/env python3
+"""
+gr4vy seed studio - auto-generated
+instance        : ${iid}${maid?`\nmerchant account: ${maid}`:''}
+env             : ${env}
+schedule        : ${days} days x ${tpd}/day = ${(days*tpd).toLocaleString()} total
+buyers          : ${enableBuyers?`pool of ${buyerCount}, ${wReturning}% returning`:'disabled'}
+generated       : ${new Date().toISOString().slice(0,16).replace('T',' ')} UTC
+"""
+
+import os, random, time, logging
+from datetime import datetime, timezone
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+log = logging.getLogger(__name__)
+
+# -- instance -----------------------------------------------------------------
+
+INSTANCE_ID          = "${iid}"
+${maidLine}
+ENVIRONMENT          = "${env}"
+PRIVATE_KEY          = os.environ["${pkv}"]
+
+# -- schedule -----------------------------------------------------------------
+
+DURATION_DAYS = ${days}
+TXNS_PER_DAY  = ${tpd}
+RANDOM_SEED   = ${seed}
+DECLINE_RATE  = ${dr} / 100
+
+# -- payment methods ----------------------------------------------------------
+
+PAYMENT_METHODS = [
+    {"method": "card",       "weight": ${pCard}},
+    {"method": "apple-pay",  "weight": ${pApple}},
+    {"method": "google-pay", "weight": ${pGoogle}},
+]
+
+# -- processors ---------------------------------------------------------------
+
+PROCESSORS = [
+${procLines}
+]
+
+# -- countries ----------------------------------------------------------------
+
+COUNTRIES = [
+${ctryLines}
+]
+
+# -- time distribution (index = hour 0-23) ------------------------------------
+
+HOUR_WEIGHTS = ${hw}
+${buyersConfig}${metaBlock}
+# -- setup --------------------------------------------------------------------
+
+random.seed(RANDOM_SEED)
+
+try:
+    from gr4vy import Gr4vy, auth
+    from gr4vy.models.cardwithurlpaymentmethodcreate import CardWithURLPaymentMethodCreate
+    from gr4vy.models.cardpaymentmethodcreate import CardPaymentMethodCreate
+    ${enableBuyers?'from gr4vy.models.tokenpaymentmethodcreate import TokenPaymentMethodCreate':''}
+except ImportError:
+    raise SystemExit("pip install gr4vy")
+
+# NOTE: auth.with_token refreshes the bearer token dynamically (recommended).
+# For multi-day runs, move client initialisation inside the day loop.
+client = Gr4vy(
+    id=INSTANCE_ID,
+    server=ENVIRONMENT,${maidClientArg}
+    bearer_auth=auth.with_token(PRIVATE_KEY),
+)
+
+_proc_weights = [p["weight"] for p in PROCESSORS]
+_ctry_weights = [c["weight"] for c in COUNTRIES]
+_pm_weights   = [p["weight"] for p in PAYMENT_METHODS]
+
+# -- helpers ------------------------------------------------------------------
+
+def fmt_expiry(expiry: str) -> str:
+    parts = expiry.split("/")
+    return f"{parts[0]}/{parts[1][-2:]}" if len(parts) == 2 else expiry
+
+def pick_card(proc: dict, force_decline: bool) -> dict:
+    if force_decline:
+        return proc["decline_card"]
+    weights = [c["weight"] for c in proc["cards"]]
+    return random.choices(proc["cards"], weights=weights)[0]
+${buyersSetup}${pickMetaFn}
+def fire(proc: dict, country: dict, method: str${buyerFireArg}) -> bool:
+    amount = random.randint(country["lo"], country["hi"])
+${buyerFireBody}
+    try:
+        result = client.transactions.create(
+            amount=amount,
+            currency=country["currency"],
+            payment_method=pm,${buyerCreateKwarg}
+            metadata={${metaSpread}
+                "country":         country["country"],
+                "processor":       proc["name"],
+                "original_method": method,
+                "gr4vy_seeded":    "true",
+            },
+        )
+        status = getattr(result, "status", "?")
+        ok = "succeed" in status
+        log.info(f"  {'OK' if ok else '--'}  {country['country']}  | {proc['name']:<20} | {method:<10} | {country['currency']} {amount/100:>8.2f} | {status}")
+        return ok
+    except Exception as exc:
+        log.warning(f"  ERR {exc}")
+        return False
+
+# -- main ---------------------------------------------------------------------
+
+def run():
+    total    = DURATION_DAYS * TXNS_PER_DAY
+    interval = 86400 / TXNS_PER_DAY
+    log.info(f"starting: {DURATION_DAYS}d x {TXNS_PER_DAY}/day = {total} txns ({interval:.1f}s interval)")
+${buyerPoolInit}
+    fired = 0
+    for day in range(1, DURATION_DAYS + 1):
+        log.info(f"day {day}/{DURATION_DAYS} -- {datetime.now(timezone.utc).date()}")
+        ok = fail = 0
+        for _ in range(TXNS_PER_DAY):
+            proc    = random.choices(PROCESSORS, weights=_proc_weights)[0]
+            country = random.choices(COUNTRIES,  weights=_ctry_weights)[0]
+            method  = random.choices([p["method"] for p in PAYMENT_METHODS], weights=_pm_weights)[0]
+${buyerRunLine}
+                ok += 1
+            else:
+                fail += 1
+            fired += 1
+            if fired < total:
+                time.sleep(interval)
+        log.info(f"  day {day} done -- {ok} ok / {fail} failed")
+    log.info("seed run complete")
+
+if __name__ == "__main__":
+    run()
+`;
+  document.getElementById('scriptOut').textContent=script;
+  updateStats();
+}
+
+// ── crafter ──────────────────────────────────────────────────────────────────
+let cMeta=[],cMetaNextId=1;
+function addCrafterMeta(){cMeta.push({id:cMetaNextId++,key:'',val:''});renderCrafterMeta();buildCrafter();}
+function removeCrafterMeta(id){cMeta=cMeta.filter(r=>r.id!==id);renderCrafterMeta();buildCrafter();}
+function renderCrafterMeta(){document.getElementById('c_metaRows').innerHTML=cMeta.map(r=>`<div class="kv-row"><input type="text" placeholder="key" value="${r.key}" oninput="setCMeta(${r.id},'key',this.value)"><input type="text" placeholder="value" value="${r.val}" oninput="setCMeta(${r.id},'val',this.value)"><button class="rm-btn" onclick="removeCrafterMeta(${r.id})">x</button></div>`).join('');}
+function setCMeta(id,f,v){const r=cMeta.find(x=>x.id===id);if(r){r[f]=v;buildCrafter();}}
+function gv(id){return (document.getElementById(id)||{}).value||'';}
+
+function buildCrafter(){
+  const iid=gv('c_iid')||'YOUR_INSTANCE_ID';
+  const maid=gv('c_maid').trim();
+  const env=gv('c_env');
+  const pkv=gv('c_pkVar')||'GR4VY_PRIVATE_KEY';
+  const number=gv('c_number')||'4111111111111111';
+  const expiry=fmtExpiry(gv('c_expiry')||'12/30');
+  const cvv=gv('c_cvv')||'123';
+  const amount=gv('c_amount')||'1299';
+  const currency=(gv('c_currency')||'EUR').toUpperCase();
+  const intent=gv('c_intent')||'capture';
+  const country=gv('c_country').toUpperCase();
+  const extId=gv('c_extId');
+  const psId=gv('c_psId');
+  const buyerId=gv('c_buyerId');
+  const buyerExtId=gv('c_buyerExtId');
+  const email=gv('c_email');
+  const tdsVer=gv('c_3dsVer');
+  const tdsStat=gv('c_3dsStat');
+  const cavv=gv('c_cavv');
+  const eci=gv('c_eci');
+  const xid=gv('c_xid');
+  const dirResp=gv('c_dirResp');
+  const authResp=gv('c_authResp');
+  const maidLine=maid?`MERCHANT_ACCOUNT_ID = "${maid}"`:`# single-merchant instance`;
+  const maidArg=maid?`\n    merchant_account_id=MERCHANT_ACCOUNT_ID,`:'';
+  let extra='';
+  if(intent!=='capture') extra+=`    intent="${intent}",\n`;
+  if(country) extra+=`    country="${country}",\n`;
+  if(extId) extra+=`    external_identifier="${extId}",\n`;
+  if(psId) extra+=`    payment_service_id="${psId}",\n`;
+  let buyer='';
+  if(buyerId||buyerExtId||email){
+    buyer='    buyer={\n';
+    if(buyerId) buyer+=`        "buyer_id": "${buyerId}",\n`;
+    if(buyerExtId) buyer+=`        "buyer_external_identifier": "${buyerExtId}",\n`;
+    if(email) buyer+=`        "billing_details": {"email_address": "${email}"},\n`;
+    buyer+='    },\n';
+  }
+  let tds='';
+  if(tdsVer){
+    tds='    three_d_secure_data={\n';
+    tds+=`        "version": "${tdsVer}",\n`;
+    tds+=`        "status": "${tdsStat}",\n`;
+    if(cavv) tds+=`        "cavv": "${cavv}",\n`;
+    if(eci) tds+=`        "eci": "${eci}",\n`;
+    if(xid) tds+=`        "xid": "${xid}",\n`;
+    if(dirResp) tds+=`        "directory_response": "${dirResp}",\n`;
+    if(authResp) tds+=`        "authentication_response": "${authResp}",\n`;
+    tds+='    },\n';
+  }
+  const activeCMeta=cMeta.filter(r=>r.key);
+  let meta='';
+  if(activeCMeta.length){meta='    metadata={\n';activeCMeta.forEach(r=>{meta+=`        "${r.key}": "${r.val}",\n`;});meta+='    },\n';}
+  const snippet=`#!/usr/bin/env python3
+"""gr4vy single — single transaction snippet"""
+import os
+from gr4vy import Gr4vy, auth
+from gr4vy.models.cardwithurlpaymentmethodcreate import CardWithURLPaymentMethodCreate
+
+INSTANCE_ID = "${iid}"
+${maidLine}
+ENVIRONMENT  = "${env}"
+PRIVATE_KEY  = os.environ["${pkv}"]
+
+client = Gr4vy(
+    id=INSTANCE_ID,
+    server=ENVIRONMENT,${maidArg}
+    bearer_auth=auth.with_token(PRIVATE_KEY),
+)
+
+result = client.transactions.create(
+    amount=${amount},
+    currency="${currency}",
+    payment_method=CardWithURLPaymentMethodCreate(
+        number="${number}",
+        expiration_date="${expiry}",
+        security_code="${cvv}",
+    ),
+${extra}${buyer}${tds}${meta})
+
+print(f"status : {result.status}")
+print(f"id     : {result.id}")
+print(f"amount : {result.currency} {result.amount / 100:.2f}")
+if result.error_code:
+    print(f"error  : {result.error_code}")
+`;
+  document.getElementById('crafterOut').textContent=snippet;
+}
+
+function copyCrafter(){navigator.clipboard.writeText(document.getElementById('crafterOut').textContent).then(()=>{const btn=document.querySelector('.crafter-hd .copy-btn'),orig=btn.innerHTML;btn.textContent='copied!';setTimeout(()=>btn.innerHTML=orig,2000);});}
+
+// ── modal ────────────────────────────────────────────────────────────────────
+function onEnvChange(sel){
+  if(sel.value==='production'){document.getElementById('prodConfirmCheck').checked=false;document.getElementById('prodProceedBtn').disabled=true;document.getElementById('prodModal').classList.remove('hidden');}
+  else{document.getElementById('envBadge').textContent='sandbox';document.getElementById('envBadge').classList.remove('production');refresh();}
+}
+function cancelProdSwitch(){document.getElementById('environment').value='sandbox';document.getElementById('envBadge').textContent='sandbox';document.getElementById('envBadge').classList.remove('production');document.getElementById('prodModal').classList.add('hidden');refresh();}
+function confirmProdSwitch(){document.getElementById('envBadge').textContent='production';document.getElementById('envBadge').classList.add('production');document.getElementById('prodModal').classList.add('hidden');refresh();}
+
+// ── tabs / dark ──────────────────────────────────────────────────────────────
+function toggleDark(){const d=document.body.classList.toggle('dark');document.getElementById('darkToggle').textContent=d?'☀':'☽';try{localStorage.setItem('seedStudioDark',d?'1':'0');}catch(e){}}
+function switchTab(id,btn){document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.getElementById('tab-'+id).classList.add('active');btn.classList.add('active');}
+function refresh(){renderProcessors();renderCountries();renderMeta();buildScript();}
+function copyScript(){navigator.clipboard.writeText(document.getElementById('scriptOut').textContent).then(()=>{const btn=document.querySelector('.out-header .copy-btn'),orig=btn.innerHTML;btn.textContent='copied!';setTimeout(()=>btn.innerHTML=orig,2000);});}
+function downloadScript(){const iid=document.getElementById('instanceId').value||'merchant';const maid=document.getElementById('merchantAccountId').value.trim();const name=maid?`${iid}_${maid}`:iid;const blob=new Blob([document.getElementById('scriptOut').textContent],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`seed_${name}.py`;a.click();URL.revokeObjectURL(a.href);}
+
+try{if(localStorage.getItem('seedStudioDark')==='1'){document.body.classList.add('dark');document.getElementById('darkToggle').textContent='☀';}}catch(e){}
+renderProcessors();renderCountries();renderMeta();buildScript();buildCrafter();
+</script>
+</body>
+</html>
